@@ -2,6 +2,7 @@ import logging
 import logging.config
 import yaml
 import requests
+import os
 
 # Task 1: Read from configuration file
 # logging.config.fileConfig('logging.conf')
@@ -15,7 +16,7 @@ logger = logging.getLogger('staging')
 
 # Main
 # Task 2: Gather data from API
-ip_address = input("Please enter the ip address: ")
+ip_address = os.environ.get("FIND_IP_LOCATION")
 url = f"https://ipapi.co/{ip_address}/json/"
 loc = requests.get(url)
 print(loc)

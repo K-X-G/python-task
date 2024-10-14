@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      tags:
+        - "gatherapi:v1.0"
+    environment:
+      - FIND_IP_LOCATION=8.8.8.8
