@@ -19,7 +19,7 @@ logger = logging.getLogger('staging')
 
 def connect_to_mysql():
     try:
-        return mysql.connector.connect(user='root', password='my-secret-pw', database='ips', host='mysql')        
+        return mysql.connector.connect(user='root', password='my-secret-pw', database='ip', host='mysql')        
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             logger.error('Something is wrong with your user name or password')
@@ -35,16 +35,35 @@ def connect_to_mysql():
 ip_address = os.environ.get("FIND_IP_LOCATION", "8.8.8.8")
 url = f"https://ipapi.co/{ip_address}/json/"
 
-# try:
-#     loc = requests.get(url)
-#     print(loc.json())
-# except SSLError as err:
-#     logger.error(f"An SSLError occurred: {err}")
+try:
+    loc = requests.get(url)
+    print(loc.json())
+except SSLError as err:
+    logger.error(f"An SSLError occurred: {err}")
+
+query_stmt = ("INSERT INTO ip_location "
+              "(ip, country, org) "
+              "VALUES (%(ip)s, %(country_name)s, %(org)s)")
     
 # Task 3: Write the result to SQL database
 conn = connect_to_mysql()
 if conn and conn.is_connected():
     logger.info('Connection to db is successful!')
+    with conn.cursor() as cursor:
+        try:
+            logger.info('Inserting data into database...')
+            cursor.execute(query_stmt, loc.json())
+
+            # Make sure data is committed to the database
+            conn.commit()
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_NO_SUCH_TABLE:
+                logger.error('Table does not exist!')
+            else:
+                logger.error('Unknown error: ', err)
+        finally:
+            cursor.close()
+
     conn.close()
 else:
     logger.info('Could not connect.')
