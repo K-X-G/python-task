@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     command: sh -c "sleep 10s ; python ./script.py"
     environment:
-      - FIND_IP_LOCATION=8.8.8.8
+      - FIND_IP_LOCATION=1.1.1.1
     depends_on:
       - mysql
   mysql:

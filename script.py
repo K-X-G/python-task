@@ -37,9 +37,12 @@ url = f"https://ipapi.co/{ip_address}/json/"
 
 try:
     loc = requests.get(url)
-    print(loc.json())
+    loc.raise_for_status()
 except SSLError as err:
     logger.error(f"An SSLError occurred: {err}")
+except requests.exceptions.HTTPError as err:
+    logger.error(err)
+    raise
 
 query_stmt = ("INSERT INTO ip_location "
               "(ip, country, org) "
@@ -56,6 +59,7 @@ if conn and conn.is_connected():
 
             # Make sure data is committed to the database
             conn.commit()
+            logger.info('Data was inserted successfully!')
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_NO_SUCH_TABLE:
                 logger.error('Table does not exist!')
