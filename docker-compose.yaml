@@ -14,7 +14,14 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=my-secret-pw
+      # - MYSQL_ROOT_PASSWORD=my-secret-pw
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
       - MYSQL_DATABASE=ip
+    secrets:
+      - db_root_password
     ports:
       - '3306:3306'
+
+secrets:
+  db_root_password:
+    file: my-secret-pw.txt
